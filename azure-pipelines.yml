@@ -19,6 +19,10 @@ steps:
   inputs:
     target: 'aab'
     projectDirectory: '.'
+- task: FlutterBuild@0
+  inputs:
+    target: 'ios'
+    projectDirectory: '.'
 
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
