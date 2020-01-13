@@ -19,10 +19,6 @@ steps:
   inputs:
     target: 'aab'
     projectDirectory: '.'
-- task: FlutterBuild@0
-  inputs:
-    target: 'ios'
-    projectDirectory: '.'
 - task: AndroidSigning@3
   inputs:
     apkFiles: '**/*.aab'
