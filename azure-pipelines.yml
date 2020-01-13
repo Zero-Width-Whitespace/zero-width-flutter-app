@@ -23,6 +23,14 @@ steps:
   inputs:
     target: 'ios'
     projectDirectory: '.'
+- task: AndroidSigning@3
+  inputs:
+    apkFiles: '**/*.aab'
+    apksignerKeystoreFile: 'keystore.jks'
+    apksignerKeystorePassword: 'pBBZfwDXjbexFP'
+    apksignerKeystoreAlias: 'key0'
+    apksignerKeyPassword: 'ugTJsMuHfsYQjH'
+    zipalign: false
 
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
