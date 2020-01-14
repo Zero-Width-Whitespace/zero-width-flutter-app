@@ -32,7 +32,7 @@ class HomePageState extends State<MyHomePage>
                     new Column(
                       children: <Widget>[
                         new Container(
-                          height: MediaQuery.of(context).size.height * .1,
+                          height: MediaQuery.of(context).size.height * .07,
                           color: Theme.of(context).primaryColor,
                         ),
                       ],
