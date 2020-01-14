@@ -30,8 +30,7 @@ steps:
     apksignerArguments: --min-sdk-version 21
 - task: GooglePlayReleaseBundle@3
   inputs:
-    authType: 'JsonFile'
-    serviceAccountKey: 'GooglePlayKey.json'
+    serviceConnection: 'Google Play Console'
     applicationId: 'com.kevin.serverstatus'
     bundleFile: 'build/app/outputs/bundle/release/app-release.aab'
     track: 'internal'
