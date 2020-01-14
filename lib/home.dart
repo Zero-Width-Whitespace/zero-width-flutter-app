@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'widgets.dart';
 
 import 'main.dart';
+import 'widgets.dart';
 
 class HomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
-  final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKeyEncrypt = new GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKeyDecrypt = new GlobalKey<FormState>();
   TabController _controller;
 
   @override
@@ -44,13 +45,14 @@ class HomePageState extends State<MyHomePage>
                           physics: const NeverScrollableScrollPhysics(),
                           children: <Widget>[
                             TabBarHeader(context, _controller),
-                            TabBarBody(context, _controller, _formKey),
+                            TabBarBody(context, _controller, _formKeyEncrypt,
+                                _formKeyDecrypt),
                           ],
                         )),
                   ]),
-
-              BottomWidget(context)
+                  BottomWidget(context)
                 ])),
-        floatingActionButton: BottomButton(context, _controller, _formKey));
+        floatingActionButton: BottomButton(
+            context, _controller, _formKeyEncrypt, _formKeyDecrypt));
   }
 }

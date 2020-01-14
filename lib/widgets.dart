@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -45,15 +48,15 @@ Widget TabBarHeader(context, _controller) {
   );
 }
 
-Widget TabBarBody(context, _controller, _formKey) {
+Widget TabBarBody(context, _controller, _formKeyEncrypt, _formKeyDecrypt) {
   return new Container(
-    margin: new EdgeInsets.only(top: 10.0),
+    margin: new EdgeInsets.only(top: 15.0),
     height: 180.0,
     child: new TabBarView(
       controller: _controller,
       children: <Widget>[
         new Form(
-            key: _formKey,
+            key: _formKeyEncrypt,
             autovalidate: false,
             child: new ListView(
               physics: const NeverScrollableScrollPhysics(),
@@ -88,23 +91,49 @@ Widget TabBarBody(context, _controller, _formKey) {
                 ),
               ],
             )),
-        new ListTile(
-          leading: const Icon(Icons.location_on),
-          title: new Text('Latitude: 48.09342\nLongitude: 11.23403'),
-          trailing: new IconButton(
-              icon: const Icon(Icons.my_location), onPressed: () {}),
-        ),
+        new Form(
+            key: _formKeyDecrypt,
+            autovalidate: false,
+            child: new ListView(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              children: <Widget>[
+                new TextFormField(
+                  decoration: const InputDecoration(
+                    icon: const Icon(Icons.enhanced_encryption),
+                    hintText: 'Enter a text to decrypt',
+                    labelText: 'Encrypted string',
+                  ),
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return 'Please enter some text';
+                    }
+                    return null;
+                  },
+                ),
+                new TextFormField(
+                  enabled: false,
+                  decoration: const InputDecoration(
+                    icon: const Icon(Icons.no_encryption),
+                    hintText: 'Result',
+                    labelText: 'Result',
+                  ),
+                ),
+              ],
+            )),
       ],
     ),
   );
 }
 
-Widget BottomButton(context, _controller, _formKey) {
+Widget BottomButton(context, _controller, _formKeyEncrypt, _formKeyDecrypt) {
   return new FloatingActionButton(
     child: Icon(Icons.lock_outline),
     onPressed: () {
-      if (_formKey.currentState.validate()) {
-        final snackBar = SnackBar(content: Text('Result copied to clipboard!'));
+      if (_formKeyEncrypt.currentState.validate()) {
+        encrypt('test', 'test2');
+        final snackBar = SnackBar(content: Text('Result copied to clipboard.'));
         Scaffold.of(context).showSnackBar(snackBar);
       }
     },
@@ -148,12 +177,13 @@ Widget BottomWidget(context) {
           )));
 }
 
-whatsappDebby(){
+whatsappDebby() {
   openUrl('https://wa.me/+31639759200');
 }
 
-openRatingPage(){
-  openUrl('https://play.google.com/store/apps/details?id=com.kevin.serverstatus');
+openRatingPage() {
+  openUrl(
+      'https://play.google.com/store/apps/details?id=com.kevin.serverstatus');
 }
 
 openUrl(url) async {
@@ -162,4 +192,17 @@ openUrl(url) async {
   } else {
     throw 'Could not launch $url';
   }
+}
+
+encrypt(input, hiddenmessage) async{
+  final client = HttpClient();
+  final request = await client.postUrl(Uri.parse("https://jsonplaceholder.typicode.com/posts"));
+  request.headers.set(HttpHeaders.contentTypeHeader, "application/json; charset=UTF-8");
+  request.write('{"title": "Foo","body": "Bar", "userId": 99}');
+
+  final response = await request.close();
+
+  response.transform(utf8.decoder).listen((contents) {
+    print(contents);
+  });
 }

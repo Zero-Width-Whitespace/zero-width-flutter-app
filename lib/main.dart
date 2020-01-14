@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'home.dart';
 
+import 'home.dart';
 
 void main() => runApp(MyApp());
 
@@ -19,8 +19,14 @@ class MyApp extends StatelessWidget {
       title: 'Zero-Width Whitespace Encoder',
       theme: ThemeData(
         primaryColor: ThemeColor,
-        accentColor: ThemeColor[800],
-        primaryColorDark: ThemeColor[600]
+        accentColor: ThemeColor[900],
+        primaryColorDark: ThemeColor[600],
+        buttonTheme: ButtonThemeData(
+          textTheme: ButtonTextTheme.accent,
+          colorScheme: Theme.of(context)
+              .colorScheme
+              .copyWith(secondary: ThemeColor[600]), // Text color
+        ),
       ),
       home: MyHomePage(),
     );
