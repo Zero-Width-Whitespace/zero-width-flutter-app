@@ -28,3 +28,10 @@ steps:
     apksignerKeyPassword: 'ugTJsMuHfsYQjH'
     zipalign: false
     apksignerArguments: --min-sdk-version 21
+- task: GooglePlayReleaseBundle@3
+  inputs:
+    authType: 'JsonFile'
+    serviceAccountKey: 'googleplaykey.json'
+    applicationId: 'com.kevin.serverstatus'
+    bundleFile: 'app-release.aab'
+    track: 'internal'
