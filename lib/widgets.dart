@@ -5,6 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+final _encodeTextController = TextEditingController();
+final _encodeHiddenController = TextEditingController();
+
+final _decodeTextController = TextEditingController();
+final _decodeResultController = TextEditingController();
+
 Widget HeaderWidget(context) {
   return new Container(
     padding: EdgeInsets.only(bottom: 30.0),
@@ -37,11 +43,11 @@ Widget TabBarHeader(context, _controller) {
       tabs: [
         new Tab(
           icon: const Icon(Icons.lock_outline),
-          text: 'Encrypt',
+          text: 'Encode',
         ),
         new Tab(
           icon: const Icon(Icons.lock_open),
-          text: 'Decrypt',
+          text: 'Decode',
         ),
       ],
     ),
@@ -50,96 +56,116 @@ Widget TabBarHeader(context, _controller) {
 
 Widget TabBarBody(context, _controller, _formKeyEncrypt, _formKeyDecrypt) {
   return new Container(
-    margin: new EdgeInsets.only(top: 15.0),
-    height: 180.0,
+    height: 200.0,
     child: new TabBarView(
       controller: _controller,
       children: <Widget>[
-        new Form(
-            key: _formKeyEncrypt,
-            autovalidate: false,
-            child: new ListView(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              children: <Widget>[
-                new TextFormField(
-                  decoration: const InputDecoration(
-                    icon: const Icon(Icons.textsms),
-                    hintText: 'Enter a text to hide the encrypted string in',
-                    labelText: 'Text',
-                  ),
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Please enter some text';
-                    }
-                    return null;
-                  },
-                ),
-                new TextFormField(
-                  decoration: const InputDecoration(
-                    icon: const Icon(Icons.lock_outline),
-                    hintText: 'Enter a text to hide',
-                    labelText: 'Hidden message',
-                  ),
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Please enter some text';
-                    }
-                    return null;
-                  },
-                ),
-              ],
-            )),
-        new Form(
-            key: _formKeyDecrypt,
-            autovalidate: false,
-            child: new ListView(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              children: <Widget>[
-                new TextFormField(
-                  decoration: const InputDecoration(
-                    icon: const Icon(Icons.enhanced_encryption),
-                    hintText: 'Enter a text to decrypt',
-                    labelText: 'Encrypted string',
-                  ),
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return 'Please enter some text';
-                    }
-                    return null;
-                  },
-                ),
-                new TextFormField(
-                  enabled: false,
-                  decoration: const InputDecoration(
-                    icon: const Icon(Icons.no_encryption),
-                    hintText: 'Result',
-                    labelText: 'Result',
-                  ),
-                ),
-              ],
-            )),
+        new Container(
+            padding: EdgeInsets.only(top: 15.0),
+            child: new Form(
+                key: _formKeyEncrypt,
+                autovalidate: false,
+                child: new ListView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  children: <Widget>[
+                    new TextFormField(
+                      controller: _encodeTextController,
+                      decoration: const InputDecoration(
+                        icon: const Icon(Icons.textsms),
+                        hintText: 'Enter a text to hide the message in',
+                        labelText: 'Text',
+                      ),
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return 'Please enter some text';
+                        }
+                        return null;
+                      },
+                    ),
+                    new TextFormField(
+                      maxLines: 4,
+                      minLines: 2,
+                      controller: _encodeHiddenController,
+                      decoration: const InputDecoration(
+                        icon: const Icon(Icons.lock_outline),
+                        hintText: 'Enter a message to hide',
+                        labelText: 'Hidden message',
+                      ),
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return 'Please enter some text';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ))),
+        new Container(
+            padding: EdgeInsets.only(top: 15.0),
+            child: new Form(
+                key: _formKeyDecrypt,
+                autovalidate: false,
+                child: new ListView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  children: <Widget>[
+                    new TextFormField(
+                      controller: _decodeTextController,
+                      decoration: const InputDecoration(
+                        icon: const Icon(Icons.enhanced_encryption),
+                        hintText: 'Enter a text to decode',
+                        labelText: 'Encoded string',
+                      ),
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return 'Please enter some text';
+                        }
+                        return null;
+                      },
+                    ),
+                    new TextFormField(
+                      readOnly: true,
+                      maxLines: 4,
+                      minLines: 2,
+                      controller: _decodeResultController,
+                      decoration: const InputDecoration(
+                        icon: const Icon(Icons.no_encryption),
+                        hintText: 'Result',
+                        labelText: 'Result',
+                      ),
+                    ),
+                  ],
+                ))),
       ],
     ),
   );
 }
 
-Widget BottomButton(context, _controller, _formKeyEncrypt, _formKeyDecrypt) {
-  return new FloatingActionButton(
-    child: Icon(Icons.lock_outline),
-    onPressed: () {
-      if (_formKeyEncrypt.currentState.validate()) {
-        encrypt('test', 'test2');
-        final snackBar = SnackBar(content: Text('Result copied to clipboard.'));
-        Scaffold.of(context).showSnackBar(snackBar);
-      }
-    },
-    backgroundColor: Theme.of(context).primaryColor,
-    foregroundColor: Colors.white,
-  );
+Widget FloatingButton(context, _controller, _formKeyEncrypt, _formKeyDecrypt) {
+  if (_controller.index == 0) {
+    return new FloatingActionButton(
+      child: Icon(Icons.lock_outline),
+      onPressed: () {
+        HandleEncryptDecrypt(
+            context, _controller, _formKeyEncrypt, _formKeyDecrypt);
+      },
+      backgroundColor: Theme.of(context).primaryColor,
+      foregroundColor: Colors.white,
+    );
+  } else {
+    return new FloatingActionButton(
+      child: Icon(Icons.lock_open),
+      onPressed: () {
+        HandleEncryptDecrypt(
+            context, _controller, _formKeyEncrypt, _formKeyDecrypt);
+      },
+      backgroundColor: Theme.of(context).primaryColor,
+      foregroundColor: Colors.white,
+    );
+  }
 }
 
 Widget BottomWidget(context) {
@@ -194,15 +220,48 @@ openUrl(url) async {
   }
 }
 
-encrypt(input, hiddenmessage) async{
+encrypt(input, hiddenmessage) async {
   final client = HttpClient();
-  final request = await client.postUrl(Uri.parse("https://jsonplaceholder.typicode.com/posts"));
-  request.headers.set(HttpHeaders.contentTypeHeader, "application/json; charset=UTF-8");
-  request.write('{"title": "Foo","body": "Bar", "userId": 99}');
+  final request = await client
+      .postUrl(Uri.parse("https://jsonplaceholder.typicode.com/posts"));
+  request.headers
+      .set(HttpHeaders.contentTypeHeader, "application/json; charset=UTF-8");
+  request.write('{\"title\": \"'+input+'\",\"body\": \"'+hiddenmessage+'\", \"userId\": 99}');
 
   final response = await request.close();
 
   response.transform(utf8.decoder).listen((contents) {
     print(contents);
   });
+}
+
+decrypt(input) async {
+  final client = HttpClient();
+  final request = await client
+      .postUrl(Uri.parse("https://jsonplaceholder.typicode.com/posts"));
+  request.headers
+      .set(HttpHeaders.contentTypeHeader, "application/json; charset=UTF-8");
+  request.write('{\"title\": \"Decrypt\",\"body\": \"'+input+'\", \"userId\": 99}');
+
+  final response = await request.close();
+
+  response.transform(utf8.decoder).listen((contents) {
+    _decodeResultController.text = contents;
+  });
+}
+
+HandleEncryptDecrypt(context, _controller, _formKeyEncrypt, _formKeyDecrypt) {
+  if (_controller.index == 0) {
+    if (_formKeyEncrypt.currentState.validate()) {
+      encrypt('test', 'test2');
+      final snackBar = SnackBar(content: Text('Result copied to clipboard.'), duration: Duration(seconds: 1));
+      Scaffold.of(context).showSnackBar(snackBar);
+    }
+  } else {
+    if (_formKeyDecrypt.currentState.validate()) {
+      decrypt(_decodeTextController.text);
+      final snackBar = SnackBar(content: Text('Decoded value.'), duration: Duration(seconds: 1));
+      Scaffold.of(context).showSnackBar(snackBar);
+    }
+  }
 }

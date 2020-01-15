@@ -8,16 +8,19 @@ class HomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
   final GlobalKey<FormState> _formKeyEncrypt = new GlobalKey<FormState>();
   final GlobalKey<FormState> _formKeyDecrypt = new GlobalKey<FormState>();
+
   TabController _controller;
+
 
   @override
   void initState() {
     super.initState();
     _controller = new TabController(length: 2, vsync: this);
+    _controller.addListener(_handleTabSelection);
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext buildContext) {
     return new Scaffold(
         appBar: new AppBar(
           title: new Center(
@@ -29,7 +32,8 @@ class HomePageState extends State<MyHomePage>
         body: Builder(
             builder: (context) => new Column(children: [
                   HeaderWidget(context),
-                  new Stack(children: [
+                  new Stack(
+                      children: [
                     new Column(
                       children: <Widget>[
                         new Container(
@@ -52,7 +56,14 @@ class HomePageState extends State<MyHomePage>
                   ]),
                   BottomWidget(context)
                 ])),
-        floatingActionButton: BottomButton(
-            context, _controller, _formKeyEncrypt, _formKeyDecrypt));
+        floatingActionButton: Builder(
+            builder: (context) => FloatingButton(
+                context, _controller, _formKeyEncrypt, _formKeyDecrypt)));
+  }
+
+  void _handleTabSelection() {
+    setState(() {
+      print("Changed tab to index: ${_controller.index}");
+    });
   }
 }
