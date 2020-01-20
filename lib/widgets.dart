@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-final _encodeTextController = TextEditingController();
 final _encodeHiddenController = TextEditingController();
 
 final _decodeTextController = TextEditingController();
@@ -71,26 +71,12 @@ Widget TabBarBody(context, _controller, _formKeyEncrypt, _formKeyDecrypt) {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   children: <Widget>[
                     new TextFormField(
-                      controller: _encodeTextController,
-                      decoration: const InputDecoration(
-                        icon: const Icon(Icons.textsms),
-                        hintText: 'Enter a text to hide the message in',
-                        labelText: 'Text',
-                      ),
-                      validator: (value) {
-                        if (value.isEmpty) {
-                          return 'Please enter some text';
-                        }
-                        return null;
-                      },
-                    ),
-                    new TextFormField(
                       maxLines: 4,
                       minLines: 2,
                       controller: _encodeHiddenController,
                       decoration: const InputDecoration(
                         icon: const Icon(Icons.lock_outline),
-                        hintText: 'Enter a message to hide',
+                        hintText: 'Enter a message to encode',
                         labelText: 'Hidden message',
                       ),
                       validator: (value) {
@@ -220,46 +206,50 @@ openUrl(url) async {
   }
 }
 
-encrypt(input, hiddenmessage) async {
+encrypt(input) async {
   final client = HttpClient();
   final request = await client
-      .postUrl(Uri.parse("https://jsonplaceholder.typicode.com/posts"));
+      .postUrl(Uri.parse("https://zero-width-api-web.azurewebsites.net/Encode?stringToEncode="+input));
   request.headers
-      .set(HttpHeaders.contentTypeHeader, "application/json; charset=UTF-8");
-  request.write('{\"title\": \"'+input+'\",\"body\": \"'+hiddenmessage+'\", \"userId\": 99}');
+      .set(HttpHeaders.contentTypeHeader, "text/plain; charset=utf-8");
 
   final response = await request.close();
 
   response.transform(utf8.decoder).listen((contents) {
     print(contents);
+    Clipboard.setData(new ClipboardData(text: contents));
   });
 }
 
 decrypt(input) async {
+  if(input == null){
+    print("Empty input");
+  }
+
   final client = HttpClient();
   final request = await client
-      .postUrl(Uri.parse("https://jsonplaceholder.typicode.com/posts"));
+      .postUrl(Uri.parse("https://zero-width-api-web.azurewebsites.net/Decode?stringToDecode="+input));
   request.headers
-      .set(HttpHeaders.contentTypeHeader, "application/json; charset=UTF-8");
-  request.write('{\"title\": \"Decrypt\",\"body\": \"'+input+'\", \"userId\": 99}');
+      .set(HttpHeaders.contentTypeHeader, "text/plain; charset=utf-8");
 
   final response = await request.close();
-
   response.transform(utf8.decoder).listen((contents) {
-    _decodeResultController.text = contents;
+    // handle data
+    print("Done");
+    print(contents.toString());
   });
 }
 
 HandleEncryptDecrypt(context, _controller, _formKeyEncrypt, _formKeyDecrypt) {
   if (_controller.index == 0) {
     if (_formKeyEncrypt.currentState.validate()) {
-      encrypt('test', 'test2');
+      encrypt(_encodeHiddenController.value.toString());
       final snackBar = SnackBar(content: Text('Result copied to clipboard.'), duration: Duration(seconds: 1));
       Scaffold.of(context).showSnackBar(snackBar);
     }
   } else {
     if (_formKeyDecrypt.currentState.validate()) {
-      decrypt(_decodeTextController.text);
+      decrypt(_decodeTextController.text.toString());
       final snackBar = SnackBar(content: Text('Decoded value.'), duration: Duration(seconds: 1));
       Scaffold.of(context).showSnackBar(snackBar);
     }
