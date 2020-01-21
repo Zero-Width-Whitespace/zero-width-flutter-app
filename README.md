@@ -1,16 +1,6 @@
-# flutter_app
+[![Build Status](https://dev.azure.com/tobiasputman/Zero-width%20Whitespace/_apis/build/status/Flutter%20App?branchName=master)](https://dev.azure.com/tobiasputman/Zero-width%20Whitespace/_build/latest?definitionId=4&branchName=master)
 
-A new Flutter application.
+## Zero-Width Whitespace Application
+This App was made for our HBO Informatica Minor Project
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<a href='https://play.google.com/store/apps/details?id=com.kevin.serverstatus&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img img width="175px" alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/></a>
