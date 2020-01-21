@@ -1,9 +1,7 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 final _encodeHiddenController = TextEditingController();
@@ -61,7 +59,7 @@ Widget TabBarBody(context, _controller, _formKeyEncrypt, _formKeyDecrypt) {
       controller: _controller,
       children: <Widget>[
         new Container(
-            padding: EdgeInsets.only(top: 15.0),
+            padding: EdgeInsets.only(top: 50.0),
             child: new Form(
                 key: _formKeyEncrypt,
                 autovalidate: false,
@@ -72,7 +70,7 @@ Widget TabBarBody(context, _controller, _formKeyEncrypt, _formKeyDecrypt) {
                   children: <Widget>[
                     new TextFormField(
                       maxLines: 4,
-                      minLines: 2,
+                      minLines: 1,
                       controller: _encodeHiddenController,
                       decoration: const InputDecoration(
                         icon: const Icon(Icons.lock_outline),
@@ -206,52 +204,63 @@ openUrl(url) async {
   }
 }
 
-encrypt(input) async {
-  final client = HttpClient();
-  final request = await client
-      .postUrl(Uri.parse("https://zero-width-api-web.azurewebsites.net/Encode?stringToEncode="+input));
-  request.headers
-      .set(HttpHeaders.contentTypeHeader, "text/plain; charset=utf-8");
+encrypt(input, context) async {
+  String url = "https://zero-width-api-web.azurewebsites.net/Encode";
+  try {
+    http.post(url, body: {"stringToEncode": input}).then((response) {
+      //--handle response
+      if (response.statusCode == 200) {
+        Clipboard.setData(new ClipboardData(text: response.body));
 
-  final response = await request.close();
-
-  response.transform(utf8.decoder).listen((contents) {
-    print(contents);
-    Clipboard.setData(new ClipboardData(text: contents));
-  });
+        print(response.body);
+        final snackBar = SnackBar(
+            content: Text('Result copied to clipboard.'),
+            duration: Duration(seconds: 1));
+        Scaffold.of(context).showSnackBar(snackBar);
+      } else {
+        throw new Exception();
+      }
+    });
+  } catch (e) {
+    final snackBar = SnackBar(
+        content: Text('Something went wrong.'), duration: Duration(seconds: 1));
+    Scaffold.of(context).showSnackBar(snackBar);
+  }
 }
 
-decrypt(input) async {
-  if(input == null){
-    print("Empty input");
+decrypt(input, context) async {
+  try {
+    if (input == null) {
+      print("Empty input");
+    }
+    String url = "https://zero-width-api-web.azurewebsites.net/Decode";
+    http.post(url, body: {"stringToDecode": input}).then((response) {
+      if (response.statusCode == 200) {
+        _decodeResultController.text = response.body;
+
+        print(response.body);
+        final snackBar = SnackBar(
+            content: Text('Decoded value.'), duration: Duration(seconds: 1));
+        Scaffold.of(context).showSnackBar(snackBar);
+      } else {
+        throw new Exception();
+      }
+    });
+  } catch (e) {
+    final snackBar = SnackBar(
+        content: Text('Something went wrong.'), duration: Duration(seconds: 1));
+    Scaffold.of(context).showSnackBar(snackBar);
   }
-
-  final client = HttpClient();
-  final request = await client
-      .postUrl(Uri.parse("https://zero-width-api-web.azurewebsites.net/Decode?stringToDecode="+input));
-  request.headers
-      .set(HttpHeaders.contentTypeHeader, "text/plain; charset=utf-8");
-
-  final response = await request.close();
-  response.transform(utf8.decoder).listen((contents) {
-    // handle data
-    print("Done");
-    print(contents.toString());
-  });
 }
 
 HandleEncryptDecrypt(context, _controller, _formKeyEncrypt, _formKeyDecrypt) {
   if (_controller.index == 0) {
     if (_formKeyEncrypt.currentState.validate()) {
-      encrypt(_encodeHiddenController.value.toString());
-      final snackBar = SnackBar(content: Text('Result copied to clipboard.'), duration: Duration(seconds: 1));
-      Scaffold.of(context).showSnackBar(snackBar);
+      encrypt(_encodeHiddenController.text.toString(), context);
     }
   } else {
     if (_formKeyDecrypt.currentState.validate()) {
-      decrypt(_decodeTextController.text.toString());
-      final snackBar = SnackBar(content: Text('Decoded value.'), duration: Duration(seconds: 1));
-      Scaffold.of(context).showSnackBar(snackBar);
+      decrypt(_decodeTextController.text.toString(), context);
     }
   }
 }
