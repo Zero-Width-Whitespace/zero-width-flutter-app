@@ -19,6 +19,8 @@ steps:
   inputs:
     target: 'aab'
     projectDirectory: '.'
+    buildNumber: '$(Build.BuildNumber)'
+    buildName: '$(Build.BuildNumber)'
 - task: AndroidSigning@3
   inputs:
     apkFiles: '**/*.aab'
