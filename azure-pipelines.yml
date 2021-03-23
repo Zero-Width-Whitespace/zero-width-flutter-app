@@ -14,7 +14,8 @@ steps:
 - task: FlutterInstall@0
   inputs:
     channel: 'stable'
-    version: 'latest'
+    version: 'custom'
+    customVersion: 'v1.12.13+hotfix.8'
 - task: FlutterBuild@0
   inputs:
     target: 'aab'
